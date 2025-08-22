@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact - Abakar Oumar Adam</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
   <header class="navbar fade-in">
@@ -21,12 +22,13 @@
 
   <main class="fade-in p-8 max-w-4xl mx-auto">
     <h2 class="section-title neon-text">Contact</h2>
-    <form class="contact-form" onsubmit="submitContact(event)">
-      <input type="text" placeholder="Nom" required>
-      <input type="email" placeholder="Email" required>
-      <textarea placeholder="Message" required></textarea>
+    <form class="contact-form" id="contact-form">
+      <input type="text" name="from_name" placeholder="Nom" required>
+      <input type="email" name="from_email" placeholder="Email" required>
+      <textarea name="message" placeholder="Message" required></textarea>
       <button type="submit" class="neon-btn">Envoyer</button>
     </form>
+    <div id="status-message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; text-align: center;"></div>
     <div class="socials">
       <a href="https://github.com/ValarMorghus"><img src="assets/media/github.svg" alt="GitHub"></a>
       <a href="https://www.linkedin.com/in/adam-abakar-750839358/"><img src="assets/media/linkedin.svg" alt="LinkedIn"></a>
@@ -44,10 +46,63 @@
   </footer>
 
   <script>
-  function submitContact(e){
-    e.preventDefault();
-    alert("Formulaire envoyé ! (à connecter avec backend/EmailJS)");
-  }
+    // Initialiser EmailJS avec votre clé publique
+    emailjs.init('pkmBAAdddJ9OLVpz9'); // Clé publique EmailJS
+
+    document.getElementById('contact-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const statusMessage = document.getElementById('status-message');
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        
+        // Désactiver le bouton pendant l'envoi
+        submitButton.disabled = true;
+        submitButton.textContent = 'Envoi en cours...';
+        
+        // Préparer les paramètres du template
+        const templateParams = {
+            from_name: event.target.from_name.value,
+            from_email: event.target.from_email.value,
+            message: event.target.message.value,
+            to_email: 'oabakardk@groupeisi.com'
+        };
+
+        // Envoyer l'email via EmailJS
+        emailjs.send('service_portfolio', 'template_portfolio', templateParams)
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
+                
+                // Afficher message de succès
+                statusMessage.style.display = 'block';
+                statusMessage.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+                statusMessage.style.border = '1px solid #22c55e';
+                statusMessage.style.color = '#22c55e';
+                statusMessage.textContent = 'Message envoyé avec succès ! Je vous répondrai bientôt.';
+                
+                // Réinitialiser le formulaire
+                event.target.reset();
+                
+            }, function(error) {
+                console.log('FAILED...', error);
+                
+                // Afficher message d'erreur
+                statusMessage.style.display = 'block';
+                statusMessage.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                statusMessage.style.border = '1px solid #ef4444';
+                statusMessage.style.color = '#ef4444';
+                statusMessage.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer ou me contacter directement.';
+            })
+            .finally(function() {
+                // Réactiver le bouton
+                submitButton.disabled = false;
+                submitButton.textContent = 'Envoyer';
+                
+                // Masquer le message après 5 secondes
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            });
+    });
   </script>
   <script src="assets/js/main.js"></script>
 </body>
