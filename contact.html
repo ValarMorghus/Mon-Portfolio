@@ -46,8 +46,12 @@
   </footer>
 
   <script>
-    // Initialiser EmailJS avec votre clé publique
-    emailjs.init('pkmBAAdddJ9OLVpz9'); // Clé publique EmailJS
+    // Initialiser EmailJS quand la page est chargée
+    (function() {
+        emailjs.init({
+            publicKey: 'pkmBAAdddJ9OLVpz9'
+        });
+    })();
 
     document.getElementById('contact-form').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -67,7 +71,7 @@
             to_email: 'oabakardk@groupeisi.com'
         };
 
-        // Envoyer l'email via EmailJS
+        // Envoyer l'email via EmailJS avec la nouvelle syntaxe
         emailjs.send('service_portfolio', 'template_portfolio', templateParams)
             .then(function(response) {
                 console.log('SUCCESS!', response.status, response.text);
@@ -85,12 +89,22 @@
             }, function(error) {
                 console.log('FAILED...', error);
                 
-                // Afficher message d'erreur
+                // Afficher message d'erreur détaillé
                 statusMessage.style.display = 'block';
                 statusMessage.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
                 statusMessage.style.border = '1px solid #ef4444';
                 statusMessage.style.color = '#ef4444';
-                statusMessage.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer ou me contacter directement.';
+                
+                // Message d'erreur plus informatif
+                let errorMessage = 'Erreur lors de l\'envoi: ';
+                if (error.text) {
+                    errorMessage += error.text;
+                } else if (error.status) {
+                    errorMessage += `Code d'erreur: ${error.status}`;
+                } else {
+                    errorMessage += 'Vérifiez votre configuration EmailJS';
+                }
+                statusMessage.textContent = errorMessage;
             })
             .finally(function() {
                 // Réactiver le bouton
